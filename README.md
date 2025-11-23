@@ -1,13 +1,16 @@
-# MonthlyExpanse Tracker
 
-A simple Python application to track and manage monthly expenses .
+# Monthly Expense Tracker
 
-## Features 
-- ADD new expenses
-- View all expenses
-- Categorize spending 
-Save data automatically
- 
-## How to Run
-\'\'\'bash
-\'\'\'
+A Python application to track and manage monthly expenses.
+
+## Features
+- Add, view, and manage expenses
+- Categorize spending
+- Monthly summaries
+- Data persistence
+
+## Installation
+```bash
+git clone https://github.com/YOUR_USERNAME/my-expense-tracker.git
+cd my-expense-tracker
+python src/expense_tracker.py
