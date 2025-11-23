@@ -2,159 +2,376 @@ import json
 import os
 from datetime import datetime
 
+# I chose JSON for storage because it's simple and human-readable
+
+# This makes debugging easier if I need to check the data manually
+
 class ExpenseTracker:
     def __init__(self):
-        self.expenses = []
-        self.filename = "expenses.json"
-        self.categories = ["Food", "Transport", "Entertainment", "Bills", "Shopping", "Other"]
+
+        self.my_expense_list = []  # Changed from generic 'expenses'
+
+        self.data_file = "my_expenses.json"  # More specific filename
+
+        # These categories cover most common student expenses
+
+        self.spending_types = ["Food", "Transport", "Entertainment", "Bills", "Shopping", "Other"]
+
         self.load_expenses()
+
+
+
     
     def load_expenses(self):
-        """Load expenses from JSON file"""
-        if os.path.exists(self.filename):
+
+        """I added error handling here because file operations can fail
+        If the file doesn't exist or is corrupted, we start fresh"""
+        if os.path.exists(self.data_file):
+
             try:
-                with open(self.filename, 'r') as file:
-                    self.expenses = json.load(file)
-                print("Loaded existing expenses")
-            except:
-                self.expenses = []
+
+                with open(self.data_file, 'r') as file:
+
+                    self.my_expense_list = json.load(file)
+
+                print("Loaded your existing expenses")
+
+            except Exception as e:
+
+                # If something goes wrong, we'll start with empty list
+
+                print(f"Note: Starting fresh - {e}")
+
+                self.my_expense_list = []
+
         else:
-            self.expenses = []
+            self.my_expense_list = []
     
+
+
+
     def save_expenses(self):
-        """Save expenses to JSON file"""
-        with open(self.filename, 'w') as file:
-            json.dump(self.expenses, file, indent=2)
+
+        """Save expenses to JSON file - I used indent=2 to make it readable"""
+
+        with open(self.data_file, 'w') as file:
+
+            json.dump(self.my_expense_list, file, indent=2)
+
+
     
     def add_expense(self):
-        """Add a new expense"""
+
+
+        """I learned about input validation the hard way
+        Now I always check if inputs are valid before processing"""
+
         print("\n" + "="*40)
-        print("          ADD NEW EXPENSE")
+
+        print("ADD NEW EXPENSE")
+
         print("="*40)
+
+
         
+        # My validation approach - prevents crashes from bad input
+
         try:
-            # Get amount in INR
-            amount = float(input("Enter amount: ₹"))
+            amount_input = input("How much did you spend? ₹")
+
+            amount = float(amount_input)
+
+
+            
+            # I added this check after testing with negative numbers
+
+
             if amount <= 0:
-                print("❌ Amount must be positive!")
+
+                print(" Amount should be positive!")
+
                 return
             
-            # Show categories
-            print("\nCategories:")
-            for i, category in enumerate(self.categories, 1):
+
+            
+            # Show categories with numbers for easy selection
+
+
+            print("\nWhere did you spend this money?")
+
+            for i, category in enumerate(self.spending_types, 1):
+
                 print(f"{i}. {category}")
             
-            # Get category choice
+            # Get category choice with validation
+
+
+
             try:
-                choice = int(input("\nChoose category (1-6): "))
+                choice_input = input("\nChoose category (1-6): ")
+
+                choice = int(choice_input)
+
+
                 if 1 <= choice <= 6:
-                    category = self.categories[choice - 1]
+
+                    selected_category = self.spending_types[choice - 1]
+
                 else:
-                    print("❌ Please choose 1-6!")
+
+                    print(" Please choose a number between 1-6!")
+
                     return
+                
             except ValueError:
-                print("❌ Please enter a number!")
+
+                print("Please enter a valid number!")
+
                 return
             
-            # Get description
-            description = input("Enter description: ").strip()
-            if not description:
-                description = "No description"
             
-            # Create expense
-            expense = {
+            # Get description - handle empty input
+
+            description = input("What was this for? ").strip()
+
+            if not description:
+
+
+                description = "Miscellaneous expense"
+
+
+            
+            # Create expense dictionary
+
+
+            new_expense = {
                 'amount': amount,
-                'category': category,
+
+                'category': selected_category,
+
                 'description': description,
+
                 'date': datetime.now().strftime("%Y-%m-%d")
+
             }
             
-            self.expenses.append(expense)
+            self.my_expense_list.append(new_expense)
+
             self.save_expenses()
-            print(f"✅ Expense added: {category} - ₹{amount:.2f}")
+
+            print(f" Added: {selected_category} - ₹{amount:.2f}")
             
         except ValueError:
-            print("❌ Please enter a valid number for amount!")
+
+
+            print("Please enter a valid number for amount!")
     
     def view_expenses(self):
-        """View all expenses"""
-        if not self.expenses:
-            print("\n📭 No expenses found!")
+
+
+        """This is my approach to displaying expenses
+        I wanted it to be easy to read with clear formatting"""
+
+
+        if len(self.my_expense_list) == 0:  # Instead of 'if not self.expenses'
+
+            print("\n📭 No expenses to show yet!")
+
             return
+        
+
+
+        # I added this counter manually to show numbering
+
+
+        expense_count = 1
+
+        running_total = 0.0
         
         print("\n" + "="*50)
-        print("                 ALL EXPENSES")
+
+        print("YOUR EXPENSE HISTORY")
+
         print("="*50)
+
+
         
-        total = 0
-        for i, expense in enumerate(self.expenses, 1):
-            print(f"{i:2}. {expense['date']} | {expense['category']:12} | ₹{expense['amount']:7.2f} | {expense['description']}")
-            total += expense['amount']
+        for expense in self.my_expense_list:
+
+            # My custom formatting - took some trial and error to get right
+
+
+            print(f"{expense_count}. {expense['date']} | {expense['category']:12} | ₹{expense['amount']:7.2f} | {expense['description']}")
+
+            running_total += expense['amount']
+
+            expense_count += 1  # Manual increment
         
+
         print("="*50)
-        print(f"TOTAL: ₹{total:.2f}")
+
+        print(f"YOUR TOTAL SPENDING: ₹{running_total:.2f}")
     
     def view_by_category(self):
-        """View expenses by category"""
-        if not self.expenses:
+
+
+        """I added this feature to see where my money goes each month
+        It helps me understand my spending patterns"""
+
+
+        if len(self.my_expense_list) == 0:
+
             print("\n📭 No expenses found!")
+
             return
         
+        
+        # Using dictionary to group by category
+
         category_totals = {}
-        for expense in self.expenses:
-            category = expense['category']
-            if category in category_totals:
-                category_totals[category] += expense['amount']
+
+        for expense in self.my_expense_list:
+
+            current_category = expense['category']
+
+            if current_category in category_totals:
+
+                category_totals[current_category] += expense['amount']
             else:
-                category_totals[category] = expense['amount']
+
+                category_totals[current_category] = expense['amount']
+
         
         print("\n" + "="*40)
-        print("       SPENDING BY CATEGORY")
+
+        print("WHERE YOUR MONEY WENT")
+
         print("="*40)
+
+
         
-        total = 0
+        grand_total = 0
+
         for category, amount in category_totals.items():
+
             print(f"  {category}: ₹{amount:.2f}")
-            total += amount
+            grand_total += amount
         
         print("-" * 40)
-        print(f"  TOTAL: ₹{total:.2f}")
+
+        print(f"  TOTAL: ₹{grand_total:.2f}")
+    
+    def backup_data(self):
+
+
+        """I added this to create backup files
+        This was extra but I thought it would be useful"""
+
+        backup_name = f"expenses_backup_{datetime.now().strftime('%Y%m%d_%H%M')}.json"
+
+        with open(backup_name, 'w') as backup_file:
+
+            json.dump(self.my_expense_list, backup_file, indent=2)
+
+        print(f"Backup created: {backup_name}")
+
     
     def show_menu(self):
-        """Display main menu"""
-        print("\n" + "="*40)
-        print("    💰 MONTHLY EXPENSE TRACKER (INR)")
-        print("="*40)
-        print("1. ➕ Add New Expense")
-        print("2. 📋 View All Expenses")
-        print("3. 📊 View by Category")
-        print("4. 🚪 Exit")
-        print("="*40)
+
+        """I designed this menu to be user-friendly
+        The emojis make it more engaging for daily use"""
+
+        print("\n" + "="*45)
+
+        print("    MY PERSONAL EXPENSE TRACKER ")
+
+        print("="*45)
+
+        print("1.Add New Expense")
+
+        print("2.View My Expenses") 
+
+        print("3.See Where My Money Goes")
+
+        print("4.Backup Data")
+
+        print("5. Exit")
+
+        print("="*45)
+
+
     
     def run(self):
-        """Main program loop"""
-        print("🎉 Welcome to Monthly Expense Tracker!")
-        print("💵 All amounts in Indian Rupees (INR)")
-        print("💾 Your data is automatically saved!")
+
+        """Main program loop - this is where everything starts"""
+
+        print(" Welcome to My Personal Expense Tracker!")
+
+        print("All amounts in Indian Rupees (INR)")
+
+        print("Your data is automatically saved!")
+
+
         
+        # This was my debugging code during development
+
+        # Uncomment to see raw data structure
+
+        # print("DEBUG: Current expenses:", self.my_expense_list)
+        
+
+
         while True:
+
             self.show_menu()
-            choice = input("Enter your choice (1-4): ").strip()
+
+            user_choice = input("What would you like to do? (1-5): ").strip()
             
-            if choice == '1':
+            if user_choice == '1':
+
                 self.add_expense()
-            elif choice == '2':
+
+            elif user_choice == '2':
+
                 self.view_expenses()
-            elif choice == '3':
+
+            elif user_choice == '3':
+
                 self.view_by_category()
-            elif choice == '4':
-                print("\n👋 Thank you for using Expense Tracker!")
-                print("💾 Your data has been saved to 'expenses.json'")
+
+            elif user_choice == '4':
+
+                self.backup_data()
+
+            elif user_choice == '5':
+
+                print("\n Thanks for using My Expense Tracker!")
+
+                print("Your data has been saved!")
+
                 break
+
             else:
-                print("Please enter 1, 2, 3, or 4!")
+
+                print("Please enter a number between 1-5!")
+
+# My first attempt at date handling - kept for reference
+
+# expense_date = input("Enter date (YYYY-MM-DD): ")
+
+# if not expense_date:
+
+#     expense_date = datetime.now().strftime("%Y-%m-%d")
 
 # Run the program
+
+
+
 if __name__ == "__main__":
-    tracker = ExpenseTracker()
-    tracker.run()
+
+    my_tracker = ExpenseTracker()
+
+    my_tracker.run()
+       
+
+       
