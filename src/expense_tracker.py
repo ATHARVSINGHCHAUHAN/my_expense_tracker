@@ -15,7 +15,7 @@ class ExpenseTracker:
             try:
                 with open(self.filename, 'r') as file:
                     self.expenses = json.load(file)
-                print("✅ Loaded existing expenses")
+                print("Loaded existing expenses")
             except:
                 self.expenses = []
         else:
@@ -92,7 +92,7 @@ class ExpenseTracker:
             total += expense['amount']
         
         print("="*50)
-        print(f"💰 TOTAL: ₹{total:.2f}")
+        print(f"TOTAL: ₹{total:.2f}")
     
     def view_by_category(self):
         """View expenses by category"""
@@ -152,7 +152,7 @@ class ExpenseTracker:
                 print("💾 Your data has been saved to 'expenses.json'")
                 break
             else:
-                print("❌ Please enter 1, 2, 3, or 4!")
+                print("Please enter 1, 2, 3, or 4!")
 
 # Run the program
 if __name__ == "__main__":

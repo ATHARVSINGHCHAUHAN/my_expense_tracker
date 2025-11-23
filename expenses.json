@@ -4,5 +4,11 @@
     "category": "Food",
     "description": "lunch",
     "date": "2025-11-23"
+  },
+  {
+    "amount": 25000.0,
+    "category": "Food",
+    "description": "sdg",
+    "date": "2025-11-23"
   }
 ]
